@@ -397,9 +397,8 @@ class simple_html_dom_node
     function text()
     {
         if (isset($this->_[HDOM_INFO_INNER])) return $this->_[HDOM_INFO_INNER];
-        switch ($this->nodetype)
-        {
-            case HDOM_TYPE_TEXT: return $this->dom->restore_noise($this->_[HDOM_INFO_TEXT]);
+        switch ($this->nodetype){
+            case HDOM_TYPE_TEXT: /** @noinspection PhpUndefinedMethodInspection */ return $this->dom->restore_noise($this->_[HDOM_INFO_TEXT]);
             case HDOM_TYPE_COMMENT: return '';
             case HDOM_TYPE_UNKNOWN: return '';
         }
@@ -412,14 +411,14 @@ class simple_html_dom_node
         // WHY is this happening?
         if (!is_null($this->nodes))
         {
-            foreach ($this->nodes as $n)
-            {
+            foreach ($this->nodes as $n) {
+                /** @noinspection PhpUndefinedMethodInspection */
                 $ret .= $this->convert_text($n->text());
             }
 
             // If this node is a span... add a space at the end of it so multiple spans don't run into each other.  This is plaintext after all.
-            if ($this->tag == "span")
-            {
+            if ($this->tag == "span"){
+                /** @noinspection PhpUndefinedFieldInspection */
                 $ret .= $this->dom->default_span_text;
             }
 
@@ -440,7 +439,7 @@ class simple_html_dom_node
     function makeup()
     {
         // text, comment, unknown
-        if (isset($this->_[HDOM_INFO_TEXT])) return $this->dom->restore_noise($this->_[HDOM_INFO_TEXT]);
+        if (isset($this->_[HDOM_INFO_TEXT])) /** @noinspection PhpUndefinedMethodInspection */ return $this->dom->restore_noise($this->_[HDOM_INFO_TEXT]);
 
         $ret = '<'.$this->tag;
         $i = -1;
@@ -467,6 +466,7 @@ class simple_html_dom_node
                 $ret .= $key.$this->_[HDOM_INFO_SPACE][$i][1].'='.$this->_[HDOM_INFO_SPACE][$i][2].$quote.$val.$quote;
             }
         }
+        /** @noinspection PhpUndefinedMethodInspection */
         $ret = $this->dom->restore_noise($ret);
         return $ret . $this->_[HDOM_INFO_ENDSPACE] . '>';
     }
@@ -493,10 +493,11 @@ class simple_html_dom_node
             for ($l=0; $l<$levle; ++$l)
             {
                 $ret = array();
-                foreach ($head as $k=>$v)
-                {
+                foreach ($head as $k=>$v) {
+                    /** @noinspection PhpUndefinedFieldInspection */
                     $n = ($k===-1) ? $this->dom->root : $this->dom->nodes[$k];
                     //PaperG - Pass this optional parameter on to the seek function.
+                    /** @noinspection PhpUndefinedMethodInspection */
                     $n->seek($selectors[$c][$l], $ret, $lowercase);
                 }
                 $head = $ret;
@@ -513,8 +514,10 @@ class simple_html_dom_node
         ksort($found_keys);
 
         $found = array();
-        foreach ($found_keys as $k=>$v)
+        foreach ($found_keys as $k=>$v) {
+            /** @noinspection PhpUndefinedFieldInspection */
             $found[] = $this->dom->nodes[$k];
+        }
 
         // return nth-element or array
         if (is_null($idx)) return $found;
@@ -527,7 +530,7 @@ class simple_html_dom_node
     protected function seek($selector, &$ret, $lowercase=false)
     {
         global $debugObject;
-        if (is_object($debugObject)) { $debugObject->debugLogEntry(1); }
+        if (is_object($debugObject)) {/** @noinspection PhpUndefinedMethodInspection */ $debugObject->debugLogEntry(1); }
 
         list($tag, $key, $val, $exp, $no_key) = $selector;
 
@@ -550,14 +553,18 @@ class simple_html_dom_node
         $end = (!empty($this->_[HDOM_INFO_END])) ? $this->_[HDOM_INFO_END] : 0;
         if ($end==0) {
             $parent = $this->parent;
+            /** @noinspection PhpUndefinedFieldInspection */
             while (!isset($parent->_[HDOM_INFO_END]) && $parent!==null) {
                 $end -= 1;
+                /** @noinspection PhpUndefinedFieldInspection */
                 $parent = $parent->parent;
             }
+            /** @noinspection PhpUndefinedFieldInspection */
             $end += $parent->_[HDOM_INFO_END];
         }
 
         for ($i=$this->_[HDOM_INFO_BEGIN]+1; $i<$end; ++$i) {
+            /** @noinspection PhpUndefinedFieldInspection */
             $node = $this->dom->nodes[$i];
 
             $pass = true;
@@ -583,12 +590,13 @@ class simple_html_dom_node
                 // If they have told us that this is a "plaintext" search then we want the plaintext of the node - right?
                 if ($key == "plaintext") {
                     // $node->plaintext actually returns $node->text();
+                    /** @noinspection PhpUndefinedMethodInspection */
                     $nodeKeyValue = $node->text();
                 } else {
                     // this is a normal search, we want the value of that attribute of the tag.
                     $nodeKeyValue = $node->attr[$key];
                 }
-                if (is_object($debugObject)) {$debugObject->debugLog(2, "testing node: " . $node->tag . " for attribute: " . $key . $exp . $val . " where nodes value is: " . $nodeKeyValue);}
+                if (is_object($debugObject)) {/** @noinspection PhpUndefinedMethodInspection */$debugObject->debugLog(2, "testing node: " . $node->tag . " for attribute: " . $key . $exp . $val . " where nodes value is: " . $nodeKeyValue);}
 
                 //PaperG - If lowercase is set, do a case insensitive test of the value of the selector.
                 if ($lowercase) {
@@ -596,7 +604,7 @@ class simple_html_dom_node
                 } else {
                     $check = $this->match($exp, $val, $nodeKeyValue);
                 }
-                if (is_object($debugObject)) {$debugObject->debugLog(2, "after match: " . ($check ? "true" : "false"));}
+                if (is_object($debugObject)) {/** @noinspection PhpUndefinedMethodInspection */$debugObject->debugLog(2, "after match: " . ($check ? "true" : "false"));}
 
                 // handle multiple class
                 if (!$check && strcasecmp($key, 'class')===0) {
@@ -618,12 +626,12 @@ class simple_html_dom_node
             unset($node);
         }
         // It's passed by reference so this is actually what this function returns.
-        if (is_object($debugObject)) {$debugObject->debugLog(1, "EXIT - ret: ", $ret);}
+        if (is_object($debugObject)) {/** @noinspection PhpUndefinedMethodInspection */$debugObject->debugLog(1, "EXIT - ret: ", $ret);}
     }
 
     protected function match($exp, $pattern, $value) {
         global $debugObject;
-        if (is_object($debugObject)) {$debugObject->debugLogEntry(1);}
+        if (is_object($debugObject)) {/** @noinspection PhpUndefinedMethodInspection */$debugObject->debugLogEntry(1);}
 
         switch ($exp) {
             case '=':
@@ -645,7 +653,7 @@ class simple_html_dom_node
 
     protected function parse_selector($selector_string) {
         global $debugObject;
-        if (is_object($debugObject)) {$debugObject->debugLogEntry(1);}
+        if (is_object($debugObject)) {/** @noinspection PhpUndefinedMethodInspection */$debugObject->debugLogEntry(1);}
 
         // pattern of CSS selectors, modified from mootools
         // Paperg: Add the colon to the attrbute, so that it properly finds <tag attr:ibute="something" > like google does.
@@ -656,7 +664,7 @@ class simple_html_dom_node
 //        $pattern = "/([\w-:\*]*)(?:\#([\w-]+)|\.([\w-]+))?(?:\[@?(!?[\w-]+)(?:([!*^$]?=)[\"']?(.*?)[\"']?)?\])?([\/, ]+)/is";
         $pattern = "/([\w-:\*]*)(?:\#([\w-]+)|\.([\w-]+))?(?:\[@?(!?[\w-:]+)(?:([!*^$]?=)[\"']?(.*?)[\"']?)?\])?([\/, ]+)/is";
         preg_match_all($pattern, trim($selector_string).' ', $matches, PREG_SET_ORDER);
-        if (is_object($debugObject)) {$debugObject->debugLog(2, "Matches Array: ", $matches);}
+        if (is_object($debugObject)) {/** @noinspection PhpUndefinedMethodInspection */$debugObject->debugLog(2, "Matches Array: ", $matches);}
 
         $selectors = array();
         $result = array();
@@ -676,6 +684,7 @@ class simple_html_dom_node
             if (!empty($m[6])) {$val=$m[6];}
 
             // convert to lowercase
+            /** @noinspection PhpUndefinedFieldInspection */
             if ($this->dom->lowercase) {$tag=strtolower($tag); $key=strtolower($key);}
             //elements that do NOT have the specified attribute
             if (isset($key[0]) && $key[0]==='!') {$key=substr($key, 1); $no_key=true;}
@@ -717,6 +726,7 @@ class simple_html_dom_node
             $this->_[HDOM_INFO_QUOTE][] = HDOM_QUOTE_DOUBLE;
         }
         $this->attr[$name] = $value;
+        return $this;
     }
 
     function __isset($name) {
@@ -738,19 +748,20 @@ class simple_html_dom_node
     function convert_text($text)
     {
         global $debugObject;
-        if (is_object($debugObject)) {$debugObject->debugLogEntry(1);}
+        if (is_object($debugObject)) {/** @noinspection PhpUndefinedMethodInspection */$debugObject->debugLogEntry(1);}
 
         $converted_text = $text;
 
         $sourceCharset = "";
         $targetCharset = "";
 
-        if ($this->dom)
-        {
+        if ($this->dom) {
+            /** @noinspection PhpUndefinedFieldInspection */
             $sourceCharset = strtoupper($this->dom->_charset);
+            /** @noinspection PhpUndefinedFieldInspection */
             $targetCharset = strtoupper($this->dom->_target_charset);
         }
-        if (is_object($debugObject)) {$debugObject->debugLog(3, "source charset: " . $sourceCharset . " target charaset: " . $targetCharset);}
+        if (is_object($debugObject)) {/** @noinspection PhpUndefinedMethodInspection */$debugObject->debugLog(3, "source charset: " . $sourceCharset . " target charaset: " . $targetCharset);}
 
         if (!empty($sourceCharset) && !empty($targetCharset) && (strcasecmp($sourceCharset, $targetCharset) != 0))
         {
@@ -789,7 +800,11 @@ class simple_html_dom_node
      */
     static function is_utf8($str)
     {
-        $c=0; $b=0;
+        /** @noinspection PhpUnusedLocalVariableInspection */
+        $c=0;
+        /** @noinspection PhpUnusedLocalVariableInspection */
+        $b=0;
+        /** @noinspection PhpUnusedLocalVariableInspection */
         $bits=0;
         $len=strlen($str);
         for($i=0; $i<$len; $i++)
@@ -832,8 +847,8 @@ class simple_html_dom_node
      * @version April 19 2012
      * @return array an array containing the 'height' and 'width' of the image on the page or -1 if we can't figure it out.
      */
-    function get_display_size()
-    {
+    function get_display_size(){
+        /** @noinspection PhpUnusedLocalVariableInspection */
         global $debugObject;
 
         $width = -1;
@@ -930,7 +945,7 @@ class simple_html_dom_node
     function previousSibling() {return $this->prev_sibling();}
     function hasChildNodes() {return $this->has_child();}
     function nodeName() {return $this->tag;}
-    function appendChild($node) {$node->parent($this); return $node;}
+    function appendChild($node) {/** @noinspection PhpUndefinedMethodInspection */$node->parent($this); return $node;}
 
 }
 
@@ -1014,6 +1029,7 @@ class simple_html_dom
     // load html from string
     function load($str, $lowercase=true, $stripRN=true, $defaultBRText=DEFAULT_BR_TEXT, $defaultSpanText=DEFAULT_SPAN_TEXT)
     {
+        /** @noinspection PhpUnusedLocalVariableInspection */
         global $debugObject;
 
         // prepare
@@ -1040,6 +1056,7 @@ class simple_html_dom
         // parsing
         while ($this->parse());
         // end
+        /** @noinspection PhpUndefinedFieldInspection */
         $this->root->_[HDOM_INFO_END] = $this->cursor;
         $this->parse_charset();
 
@@ -1049,8 +1066,7 @@ class simple_html_dom
     }
 
     // load html from file
-    function load_file()
-    {
+    function load_file(){
         $args = func_get_args();
         $this->load(call_user_func_array('file_get_contents', $args), true);
         // Throw an error if we can't properly load the dom.
@@ -1058,6 +1074,7 @@ class simple_html_dom
             $this->clear();
             return false;
         }
+        return $this;
     }
 
     // set callback function
@@ -1067,14 +1084,13 @@ class simple_html_dom
     }
 
     // remove callback function
-    function remove_callback()
-    {
+    function remove_callback(){
         $this->callback = null;
     }
 
     // save dom as string
-    function save($filepath='')
-    {
+    function save($filepath='') {
+        /** @noinspection PhpUndefinedMethodInspection */
         $ret = $this->root->innertext();
         if ($filepath!=='') file_put_contents($filepath, $ret, LOCK_EX);
         return $ret;
@@ -1082,8 +1098,8 @@ class simple_html_dom
 
     // find dom node by css selector
     // Paperg - allow us to specify that we want case insensitive testing of the value of the selector.
-    function find($selector, $idx=null, $lowercase=false)
-    {
+    function find($selector, $idx=null, $lowercase=false)    {
+        /** @noinspection PhpUndefinedMethodInspection */
         return $this->root->find($selector, $idx, $lowercase);
     }
 
@@ -1092,7 +1108,7 @@ class simple_html_dom
     {
         foreach ($this->nodes as $n) {/** @noinspection PhpUndefinedMethodInspection */$n->clear(); $n = null;}
         // This add next line is documented in the sourceforge repository. 2977248 as a fix for ongoing memory leaks that occur even with the use of clear.
-        if (isset($this->children)) foreach ($this->children as $n) {/** @noinspection PhpUndefinedMethodInspection */$n->clear(); $n = null;}
+        if (isset($this->children)) foreach (/** @noinspection PhpUndefinedMethodInspection */ $this->children as $n) {/** @noinspection PhpUndefinedMethodInspection */$n->clear(); $n = null;}
         if (isset($this->parent)) {/** @noinspection PhpUndefinedMethodInspection */$this->parent->clear(); unset($this->parent);}
         if (isset($this->root)) {/** @noinspection PhpUndefinedMethodInspection */$this->root->clear(); unset($this->root);}
         unset($this->doc);
